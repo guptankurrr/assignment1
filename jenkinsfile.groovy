@@ -95,7 +95,31 @@ pipeline {
             }
         }
     }
+        stage('Run OWASP Dependency-Check') {
+            steps {
+                script {
+                   
+                    echo 'Running OWASP Dependency-Check to scan for vulnerabilities...'
+                    sh '''
+                        dependency-check --project "my-project" \
+                                         --scan . \
+                                         --out ./dependency-check-report \
+                                         --format "HTML" \
+                                         --failBuildOnCVSS 7
+                    '''
+                }
+            }
+        }
 
+        stage('Publish OWASP Dependency-Check Report') {
+            steps {
+                script {
+                   
+                    echo 'Publishing OWASP Dependency-Check report...'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'dependency-check-report/*.html', onlyIfSuccessful: true
+                }
+            }
+        }
     post {
         success {
             echo 'Pipeline completed successfully!'
