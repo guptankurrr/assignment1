@@ -1,30 +1,34 @@
 pipeline {
-    agent any
-
+    agent any  
+    
     triggers {
-        githubPush()
+         
+        pollSCM('H/5 * * * *')   
     }
 
     stages {
-
-             stage('SonarQube Analysis') {
+        stage('Checkout') {
             steps {
-                script {
                  
-                    sh """
-                        mvn clean verify sonar:sonar -Dsonar.projectKey=my-project-key \
-                        -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=${SONARQUBE_TOKEN}
-                    """
-                     
-                }
+                git branch: 'main', url: '****'
             }
         }
         
-    }
+   
  
-    qualityGate {
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
         
-        failBuild: true
-       }
+        failure {
+            echo 'Pipeline failed.'
+        }
+        
+        always {
+            echo 'Pipeline finished.'
+        }
+    }
 }
